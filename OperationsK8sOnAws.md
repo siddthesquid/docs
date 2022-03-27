@@ -6,6 +6,16 @@
     - [Resources](#resources)
   - [Setup Guide](#setup-guide)
     - [Installation](#installation)
+    - [Deployment files](#deployment-files)
+    - [Create Kops Cluster](#create-kops-cluster)
+    - [Deploy Grafana](#deploy-grafana)
+    - [Deploy Prometheus](#deploy-prometheus)
+    - [Deploy Jenkins](#deploy-jenkins)
+    - [Deploy ArgoCD](#deploy-argocd)
+  - [Extra Stuff](#extra-stuff)
+    - [Basic Jenkins Libraries](#basic-jenkins-libraries)
+    - [Create Monitoring Dashboards](#create-monitoring-dashboards)
+    - [Testing](#testing)
 
 ## Objective
 
@@ -40,9 +50,11 @@ ArgoCD won't be tested as part of this.
   - [Local installation](https://kubernetes.io/docs/tasks/tools/)
 - Kops
   - [Local installation](https://kops.sigs.k8s.io/getting_started/install/)
+  - [Getting Started with kOps on AWS](https://kops.sigs.k8s.io/getting_started/aws/)
 - Terraform
   - [Local installation](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 - AWS
+  - [Local installation (AWS CLI)](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 - Jenkins
 - Prometheus
 - Grafana
@@ -60,4 +72,67 @@ Locally install the following:
 - terraform
 - awscli
 
-###
+Installation guides should be linked above in the [Resources](#resources) section.
+
+### Deployment files
+
+Much of our configuration will live in code as much as securely possible.
+
+- [`ops-infra`](https://github.com/siddthesquid/ops-infra) - mostly Terraform and kops-configured Terraform yamls
+- [`ops-deploy`](https://github.com/siddthesquid/ops-deploy) - manifest files for K8s and other controllers/operators
+
+```sh
+git clone git@github.com:siddthesquid/ops-infra.git
+git clone git@github.com:siddthesquid/ops-deploy.git
+```
+
+### Create Kops Cluster
+
+1. Prepare your environment.
+
+   We first need to `cd` into our `ops-infra` directory and set the environment variables
+
+   ```sh
+   cp .env.example .env # Fill out environment variables under Initialize
+   . .env
+   ```
+
+2. Download your AWS credentials for terraform to use, and then run
+
+   ```sh
+   aws configure
+   ```
+
+   using `us-east-1` as the region.
+
+3. Create an S3 bucket for the Terraform state.
+
+   ```sh
+   aws s3api create-bucket \
+   --bucket $TERRAFORM_S3_BUCKET \
+   --region $TERRAFORM_S3_REGION
+   ```
+
+4. Next, we'll set up IAM for kops. Within `ops-infra`, we need to run the following.
+
+   ```sh
+   git checkout 01-kops-init
+   terraform init
+   terraform apply
+   ```
+
+### Deploy Grafana
+
+### Deploy Prometheus
+
+### Deploy Jenkins
+
+### Deploy ArgoCD
+
+## Extra Stuff
+
+### Basic Jenkins Libraries
+
+### Create Monitoring Dashboards
+
+### Testing
